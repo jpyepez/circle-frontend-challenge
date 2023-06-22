@@ -1,0 +1,19 @@
+# Dependency directories
+node_modules/
+
+# TypeScript output directory
+dist/
+
+# Environment configuration files
+.env
+
+# Editor specific files
+.vscode/
+.idea/
+
+# Operating System specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
