@@ -17,3 +17,6 @@ Thumbs.db
 
 # Log files
 *.log
+
+# Mock data
+mocks/
