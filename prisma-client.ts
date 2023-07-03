@@ -1,10 +1,18 @@
 import { PrismaClient } from '@prisma/client'
+import mockData from './mocks/mockData'
 
 const prisma = new PrismaClient()
 
 const main = async () => {
-    const books = await prisma.book.findMany()
-    console.log(books)
+    await prisma.book.deleteMany({})
+
+    await Promise.all(
+        mockData.map(async (book) => {
+            return await prisma.book.create({
+                data: book,
+            })
+        })
+    )
 }
 
 main()
