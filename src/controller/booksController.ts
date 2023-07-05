@@ -3,24 +3,53 @@ import prisma from '../db/client'
 
 export const getAllBooks = async (_: Request, res: Response) => {
     const books = await prisma.book.findMany()
-    res.status(200).json({ books })
+    return res.status(200).json({ books })
 }
 
 export const getUniqueBook = async (req: Request, res: Response) => {
-    // TODO: handle errors
     const book = await prisma.book.findUnique({
-        where: { id: Number(req.params.id) },
+        where: { id: +req.params.id },
     })
-    res.status(200).json({ book })
+
+    if (!book) return res.status(404).json({ message: 'Book not found' })
+    return res.status(200).json({ book })
+}
+
+const purchase = async (id: number) => {
+    return await prisma.$transaction(async (tx) => {
+        try {
+            const book = await tx.book.update({
+                where: { id },
+                data: { availableStock: { decrement: 1 } },
+            })
+
+            if (book.availableStock < 0) {
+                throw new Error(
+                    `Book '${book.title}' is currently out of stock`
+                )
+            }
+            return book
+        } catch (err) {
+            if (err instanceof Error) {
+                if (/record to update not found/i.test(err.message)) {
+                    throw new Error('Book not found')
+                } else {
+                    throw err
+                }
+            }
+        }
+    })
 }
 
 export const purchaseBook = async (req: Request, res: Response) => {
-    // TODO: trigger purchase
-    // TODO: handle errors
-    const book = await prisma.book.update({
-        where: { id: Number(req.params.id) },
-        data: { availableStock: { decrement: 1 } },
-    })
-
-    res.status(200).send({ message: 'Purchase successful', book })
+    try {
+        const book = await purchase(+req.params.id)
+        return res.status(200).send({ message: 'Purchase successful', book })
+    } catch (err) {
+        if (err instanceof Error) {
+            return res.status(400).send({ message: err.message })
+        } else {
+            return res.status(500).send({ message: 'Something went wrong' })
+        }
+    }
 }
