@@ -1,17 +1,22 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import prisma from '../db/client'
+import ErrorHandler from '../utils/ErrorHandler'
 
 export const getAllBooks = async (_: Request, res: Response) => {
     const books = await prisma.book.findMany()
     return res.status(200).json({ books })
 }
 
-export const getUniqueBook = async (req: Request, res: Response) => {
+export const getUniqueBook = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     const book = await prisma.book.findUnique({
         where: { id: +req.params.id },
     })
 
-    if (!book) return res.status(404).json({ message: 'Book not found' })
+    if (!book) throw new ErrorHandler('Book not found', 404)
     return res.status(200).json({ book })
 }
 
@@ -32,7 +37,7 @@ const purchase = async (id: number) => {
         } catch (err) {
             if (err instanceof Error) {
                 if (/record to update not found/i.test(err.message)) {
-                    throw new Error('Book not found')
+                    throw new ErrorHandler('Book not found', 404)
                 } else {
                     throw err
                 }
@@ -42,14 +47,13 @@ const purchase = async (id: number) => {
 }
 
 export const purchaseBook = async (req: Request, res: Response) => {
-    try {
-        const book = await purchase(+req.params.id)
-        return res.status(200).send({ message: 'Purchase successful', book })
-    } catch (err) {
-        if (err instanceof Error) {
-            return res.status(400).send({ message: err.message })
-        } else {
-            return res.status(500).send({ message: 'Something went wrong' })
-        }
-    }
+    const purchaseChance = Math.random()
+    if (purchaseChance < 0.2)
+        throw new ErrorHandler(
+            'Unable to complete purchase, please try again later.',
+            500
+        )
+
+    const book = await purchase(+req.params.id)
+    return res.status(200).send({ message: 'Purchase successful', book })
 }
