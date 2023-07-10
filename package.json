@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
-        "build": "tsc",
+        "build": "npm install && tsc",
         "start": "node dist/index.js",
         "reset": "ts-node prisma-client.ts"
     },
