@@ -10,14 +10,18 @@ export const getAllBooks = async (_: Request, res: Response) => {
 export const getUniqueBook = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    _next: NextFunction
 ) => {
     const book = await prisma.book.findUnique({
         where: { id: +req.params.id },
     })
 
     if (!book) throw new ErrorHandler('Book not found', 404)
-    return res.status(200).json({ book })
+
+    const delay = Math.random() * 4000
+    setTimeout(() => {
+        return res.status(200).json({ book })
+    }, delay)
 }
 
 const purchase = async (id: number) => {
