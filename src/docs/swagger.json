@@ -1,0 +1,237 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "description": "Challenge mock API documentation",
+        "version": "1.0.0",
+        "title": "Circle - Frontend developer challenge"
+    },
+    "host": "localhost:8000",
+    "basePath": "/books",
+    "components": {
+        "schemas": {
+            "Book": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "The unique identifier of the book."
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "The title of the book."
+                    },
+                    "author": {
+                        "type": "string",
+                        "description": "The author of the book."
+                    },
+                    "isbn": {
+                        "type": "string",
+                        "description": "The ISBN number of the book."
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "description": "The price of the book."
+                    },
+                    "availableStock": {
+                        "type": "integer",
+                        "description": "The available stock of the book."
+                    }
+                }
+            },
+            "PurchaseResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "A success message indicating the purchase was successful."
+                    },
+                    "book": {
+                        "$ref": "#/components/schemas/Book",
+                        "description": "Details of the purchased book."
+                    }
+                }
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Error message"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Books",
+            "description": "API endpoints related to books."
+        }
+    ],
+    "paths": {
+        "/books": {
+            "get": {
+                "tags": ["Books"],
+                "summary": "Get complete book list",
+                "responses": {
+                    "200": {
+                        "description": "List of books retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "books": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Book"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Internal server error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/books/{id}": {
+            "get": {
+                "tags": ["Books"],
+                "summary": "Get a single book by its ID number",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "ID of the book to retrieve"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Book retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Book"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Book not found"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Internal server error occurred"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/books/{id}/purchase": {
+            "post": {
+                "tags": ["Books"],
+                "summary": "Purchase a book by its ID number",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "ID of the book to purchase"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Purchase successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PurchaseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Book not found"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "value": {
+                                            "message": "Book is currently out of stock"
+                                        },
+                                        "summary": "Out of stock"
+                                    },
+                                    "example2": {
+                                        "value": {
+                                            "message": "Internal Server Error"
+                                        },
+                                        "summary": "Internal server error"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
