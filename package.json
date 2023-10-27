@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "nodemon --watch 'src/**/*.{ts,json}' --exec 'ts-node' src/index.ts",
         "build": "npm install && tsc",
-        "start": "node dist/src/index.js",
+        "start": "nodemon dist/src/index.js",
         "reset": "ts-node prisma-client.ts"
     },
     "keywords": [],
